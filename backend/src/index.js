@@ -5,6 +5,7 @@ import "dotenv/config";
 
 import fs from "fs";
 import path from "path";
+import dns from "dns";
 
 import { clerkMiddleware } from "@clerk/express";
 
@@ -17,13 +18,18 @@ import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { app, server } from "./lib/socket.js";
 
+dns.setServers(["0.0.0.0", "8.8.8.8"]);
 const PORT = process.env.PORT;
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
 const publicDir = path.join(process.cwd(), "public");
 
 // it's important that you don't parse the webhook event data, it should be in the raw format
-app.use("/api/webhooks/clerk", express.raw({ type: "application/json" }), clerkWebhook);
+app.use(
+  "/api/webhooks/clerk",
+  express.raw({ type: "application/json" }),
+  clerkWebhook,
+);
 
 app.use(express.json());
 app.use(cors({ origin: FRONTEND_URL, credentials: true }));
